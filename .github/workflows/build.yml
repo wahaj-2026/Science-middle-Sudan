@@ -20,56 +20,56 @@ jobs:
           class ScienceApp extends StatelessWidget {
             @override
             Widget build(BuildContext context) {
-              return MaterialApp(debugShowCheckedModeBanner: false, home: HomePage());
+              return MaterialApp(debugShowCheckedModeBanner: false, theme: ThemeData(fontFamily: 'Cairo'), home: HomePage());
             }
           }
           class HomePage extends StatelessWidget {
-            final grades = ['الاول متوسط','الثاني متوسط','الثالث متوسط'];
-            final colors = [Colors.teal, Colors.orange, Colors.indigo];
+            final grades = [
+              {'name': 'الأول متوسط', 'icon': Icons.biotech, 'color': Colors.teal},
+              {'name': 'الثاني متوسط', 'icon': Icons.favorite, 'color': Colors.orange},
+              {'name': 'الثالث متوسط', 'icon': Icons.rocket_launch, 'color': Colors.indigo},
+            ];
             @override
             Widget build(BuildContext context) {
               return Scaffold(
-                appBar: AppBar(title: Text('العلوم - متوسطة السودان'), backgroundColor: Colors.teal, centerTitle: true),
-                body: Column(
-                  children: [
-                    Container(width: double.infinity, padding: EdgeInsets.all(16), color: Colors.teal[50],
-                      child: Text('تطبيق مجاني لوجه الله - يعمل بدون انترنت\nجمهورية السودان', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
-                    Expanded(child: ListView.builder(
-                      itemCount: grades.length,
-                      itemBuilder: (c,i) => Card(margin: EdgeInsets.all(12),
-                        child: ListTile(
-                          leading: CircleAvatar(backgroundColor: colors[i], child: Text('${i+1}', style: TextStyle(color: Colors.white))),
-                          title: Text(grades[i], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                          trailing: Icon(Icons.arrow_forward_ios),
-                          onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => LessonsPage(grade: grades[i]))),
-                        )))),
-                  ],
-                ),
+                appBar: AppBar(title: Text('العلوم - المرحلة المتوسطة'), backgroundColor: Colors.teal, centerTitle: true),
+                body: Column(children: [
+                  Container(width: double.infinity, padding: EdgeInsets.all(16), color: Colors.teal.shade50,
+                    child: Column(children: [
+                      Text('🇸🇩 منهج جمهورية السودان', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      SizedBox(height: 4),
+                      Text('تطبيق مجاني - وقف لله - يعمل بدون انترنت', textAlign: TextAlign.center),
+                    ])),
+                  Expanded(child: ListView.builder(
+                    itemCount: grades.length,
+                    itemBuilder: (c,i) => Card(margin: EdgeInsets.all(12), elevation: 4,
+                      child: ListTile(
+                        leading: CircleAvatar(backgroundColor: grades[i]['color'] as Color, child: Icon(grades[i]['icon'] as IconData, color: Colors.white)),
+                        title: Text(grades[i]['name'] as String, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        subtitle: Text('4 وحدات - شرح كامل + اسئلة'),
+                        trailing: Icon(Icons.arrow_forward_ios),
+                        onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => LessonsPage(grade: grades[i]['name'] as String))),
+                      ))),
+                  ),
+                ]),
               );
             }
           }
           class LessonsPage extends StatelessWidget {
             final String grade;
             LessonsPage({required this.grade});
-            final map = {
-              'الاول متوسط': ['الخلية وحدة الحياة','تصنيف الكائنات','المادة وخصائصها','الطاقة'],
-              'الثاني متوسط': ['اجهزة جسم الانسان','التكاثر','التفاعلات الكيميائية','الحركة والقوى'],
-              'الثالث متوسط': ['الوراثة','الكهرباء والمغناطيسية','البيئة','الفضاء والكون'],
-            };
-            @override
-            Widget build(BuildContext context) {
-              var list = map[grade]??[];
-              return Scaffold(appBar: AppBar(title: Text(grade), backgroundColor: Colors.teal),
-                body: ListView.builder(itemCount: list.length, itemBuilder: (c,i) => Card(margin: EdgeInsets.all(8),
-                  child: ListTile(leading: Icon(Icons.science, color: Colors.teal), title: Text(list[i]),
-                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('سيتم اضافة شرح ${list[i]} قريبا')))))) );
-            }
-          }
-          EOF
-          cd /tmp/app
-          flutter pub get
-          flutter build apk --release
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Science-APK
-          path: /tmp/app/build/app/outputs/flutter-apk/app-release.apk
+            final Map<String, List<Map<String,String>>> data = {
+              'الأول متوسط': [
+                {'title': 'الخلية وحدة الحياة', 'content': 'الخلية هي وحدة بناء الكائن الحي.\n\nأنواع الخلايا:\n1- خلية نباتية: لها جدار خلوي وبلاستيدات خضراء.\n2- خلية حيوانية: ليس لها جدار خلوي.\n\nأجزاء الخلية:\n- النواة: تتحكم في نشاط الخلية\n- السيتوبلازم: مادة هلامية تحدث فيها التفاعلات\n- الغشاء الخلوي: ينظم دخول وخروج المواد\n\nالمجهر: نستخدمه لرؤية الخلايا.'},
+                {'title': 'تصنيف الكائنات الحية', 'content': 'التصنيف: تقسيم الكائنات لمجموعات متشابهة.\n\nالممالك الخمسة:\n1- البدائيات: بكتيريا\n2- الطلائعيات: مثل الأميبا\n3- الفطريات: مثل عيش الغراب\n4- النباتات: تصنع غذائها بالبناء الضوئي\n5- الحيوانات: لا تصنع غذائها\n\nأهمية التصنيف: يسهل دراسة الكائنات.'},
+                {'title': 'المادة وخصائصها', 'content': 'المادة: كل شيء له كتلة وحجم.\n\nحالات المادة:\n1- صلبة: شكل وحجم ثابت (حجر)\n2- سائلة: حجم ثابت وشكل متغير (ماء)\n3- غازية: شكل وحجم متغير (هواء)\n\nالتغيرات:\n- فيزيائي: لا تتكون مادة جديدة (انصهار الثلج)\n- كيميائي: تتكون مادة جديدة (احتراق الخشب)\n\nالكثافة = الكتلة / الحجم'},
+                {'title': 'الطاقة وأنواعها', 'content': 'الطاقة: القدرة على بذل شغل.\n\nأنواع الطاقة:\n1- حركية: طاقة الجسم المتحرك\n2- وضع: طاقة الجسم المرتفع\n3- حرارية: من الحرارة\n4- ضوئية: من الشمس\n5- كهربائية\n\nتحولات الطاقة: الطاقة لا تفنى بل تتحول من شكل لآخر.\nمثال: في المصباح تتحول الكهربائية لضوئية وحرارية.\n\nمصادر الطاقة: متجددة (شمس، رياح) وغير متجددة (نفط، فحم).'},
+              ],
+              'الثاني متوسط': [
+                {'title': 'أجهزة جسم الإنسان', 'content': '1- الجهاز الهضمي: هضم الطعام (فم، مريء، معدة، أمعاء).\n2- الجهاز التنفسي: تبادل الغازات (أنف، قصبة هوائية، رئتين).\n3- الجهاز الدوري: نقل الدم (قلب، دم، أوعية دموية).\n4- الجهاز العصبي: التحكم (مخ، حبل شوكي، أعصاب).\n5- الجهاز الهيكلي: دعم الجسم وحمايته.\n\nالمحافظة على الصحة: غذاء متوازن، رياضة، نوم كاف.'},
+                {'title': 'التكاثر في الكائنات الحية', 'content': 'التكاثر: انتاج افراد جديدة.\n\nأنواعه:\n1- لاجنسي: فرد واحد، لا يحدث تنوع (انقسام، تبرعم).\n2- جنسي: فردين، يحدث تنوع وراثي.\n\nفي النبات: التلقيح ثم الاخصاب ثم تكون البذرة والثمرة.\nفي الانسان: الجهاز التناسلي الذكري والانثوي، الاخصاب داخل الرحم، نمو الجنين 9 أشهر.'},
+                {'title': 'التفاعلات الكيميائية', 'content': 'التفاعل الكيميائي: تكسر روابط وتكوين روابط جديدة.\n\nعلامات التفاعل:\n- تغير لون\n- تصاعد غاز\n- تكون راسب\n- تغير حرارة\n\nأنواع التفاعلات:\n1- اتحاد: A+B -> AB\n2- تحلل: AB -> A+B\n3- احلال\n\nالمعادلة الكيميائية: تمثل التفاعل بالرموز.\nمثال: 2H2 + O2 -> 2H2O\n\nقانون حفظ الكتلة: كتلة المتفاعلات = كتلة النواتج.'},
+                {'title': 'الحركة والقوى', 'content': 'الحركة: تغير موضع الجسم بمرور الزمن.\n\nأنواع الحركة:\n- منتظمة: سرعة ثابتة\n- غير منتظمة: سرعة متغيرة\n\nالقوة: مؤثر يغير حالة الجسم.\n\nقوانين نيوتن:\n1- الاول: الجسم الساكن يبقى ساكن ما لم تؤثر قوة.\n2- الثاني: القوة = الكتلة × التسارع\n3- الثالث: لكل فعل رد فعل مساو له في المقدار ومضاد في الاتجاه.\n\nالاحتكاك: قوة تعاكس الحركة.'},
+              ],
+              'الثالث متوسط': [
+                {'title': 'الوراثة', 'content': 'الوراثة: انتقال الصفات من الآباء للأبناء.\n\nمندل: أبو الوراثة، درس نبات البازلاء.\n\nالمفاهيم:\n- الجين: جزء من DNA يحمل صفة\n- الكروموسوم: يحمل الجينات (46 في الانسان)\n- الصفة السائدة: تظهر دائما\n- الصفة المتنحية: تظهر اذا اجتمعت مع مثلها\n\nمثال: لون العيون، فصيلة
