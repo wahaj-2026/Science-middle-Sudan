@@ -11,60 +11,38 @@ jobs:
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
-      - name: Clean old files
+      - name: Build in temp folder
         run: |
-          rm -rf lib pubspec.yaml analysis_options.yaml test
-      - name: Create fresh Flutter project
-        run: flutter create. --project-name science_middle_sudan --org com.sudan.science --platforms android
-      - name: Write Sudan Science App
-        run: |
-          cat > lib/main.dart << 'EOF'
+          flutter create --project-name science_middle_sudan --org com.sudan.science --platforms android /tmp/app
+          cat > /tmp/app/lib/main.dart << 'EOF'
           import 'package:flutter/material.dart';
           void main() => runApp(ScienceApp());
           class ScienceApp extends StatelessWidget {
             @override
             Widget build(BuildContext context) {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                title: 'علوم متوسطة - السودان',
-                home: HomePage(),
-              );
+              return MaterialApp(debugShowCheckedModeBanner: false, home: HomePage());
             }
           }
           class HomePage extends StatelessWidget {
-            final grades = [
-              {'name': 'الاول متوسط', 'color': Colors.teal},
-              {'name': 'الثاني متوسط', 'color': Colors.orange},
-              {'name': 'الثالث متوسط', 'color': Colors.indigo},
-            ];
+            final grades = ['الاول متوسط','الثاني متوسط','الثالث متوسط'];
+            final colors = [Colors.teal, Colors.orange, Colors.indigo];
             @override
             Widget build(BuildContext context) {
               return Scaffold(
-                appBar: AppBar(title: Text('العلوم - المرحلة المتوسطة السودان'), centerTitle: true, backgroundColor: Colors.teal),
+                appBar: AppBar(title: Text('العلوم - متوسطة السودان'), backgroundColor: Colors.teal, centerTitle: true),
                 body: Column(
                   children: [
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(16),
-                      color: Colors.teal[50],
-                      child: Text('تطبيق مجاني لوجه الله - يعمل بدون انترنت\nجمهورية السودان',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: grades.length,
-                        itemBuilder: (c,i) => Card(
-                          margin: EdgeInsets.all(12),
-                          child: ListTile(
-                            leading: CircleAvatar(backgroundColor: grades[i]['color'] as Color, child: Text('${i+1}', style: TextStyle(color: Colors.white))),
-                            title: Text(grades[i]['name'] as String, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                            trailing: Icon(Icons.arrow_forward_ios),
-                            onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => LessonsPage(grade: grades[i]['name'] as String))),
-                          ),
-                        ),
-                      ),
-                    ),
+                    Container(width: double.infinity, padding: EdgeInsets.all(16), color: Colors.teal[50],
+                      child: Text('تطبيق مجاني لوجه الله - يعمل بدون انترنت\nجمهورية السودان', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+                    Expanded(child: ListView.builder(
+                      itemCount: grades.length,
+                      itemBuilder: (c,i) => Card(margin: EdgeInsets.all(12),
+                        child: ListTile(
+                          leading: CircleAvatar(backgroundColor: colors[i], child: Text('${i+1}', style: TextStyle(color: Colors.white))),
+                          title: Text(grades[i], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          trailing: Icon(Icons.arrow_forward_ios),
+                          onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => LessonsPage(grade: grades[i]))),
+                        )))),
                   ],
                 ),
               );
@@ -73,34 +51,25 @@ jobs:
           class LessonsPage extends StatelessWidget {
             final String grade;
             LessonsPage({required this.grade});
-            final lessons = {
-              'الاول متوسط': ['الخلية وحدة الحياة', 'تصنيف الكائنات الحية', 'المادة وخصائصها', 'الطاقة وأنواعها'],
-              'الثاني متوسط': ['اجهزة جسم الانسان', 'التكاثر في الكائنات', 'التفاعلات الكيميائية', 'الحركة والقوى'],
-              'الثالث متوسط': ['الوراثة', 'الكهرباء والمغناطيسية', 'البيئة والتوازن', 'الفضاء والكون'],
+            final map = {
+              'الاول متوسط': ['الخلية وحدة الحياة','تصنيف الكائنات','المادة وخصائصها','الطاقة'],
+              'الثاني متوسط': ['اجهزة جسم الانسان','التكاثر','التفاعلات الكيميائية','الحركة والقوى'],
+              'الثالث متوسط': ['الوراثة','الكهرباء والمغناطيسية','البيئة','الفضاء والكون'],
             };
             @override
             Widget build(BuildContext context) {
-              var list = lessons[grade]?? [];
-              return Scaffold(
-                appBar: AppBar(title: Text(grade), backgroundColor: Colors.teal),
-                body: ListView.builder(
-                  itemCount: list.length,
-                  itemBuilder: (c,i) => Card(
-                    margin: EdgeInsets.all(8),
-                    child: ListTile(
-                      title: Text(list[i]),
-                      leading: Icon(Icons.science, color: Colors.teal),
-                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('سيتم اضافة الشرح قريبا - ${list[i]}'))),
-                    ),
-                  ),
-                ),
-              );
+              var list = map[grade]??[];
+              return Scaffold(appBar: AppBar(title: Text(grade), backgroundColor: Colors.teal),
+                body: ListView.builder(itemCount: list.length, itemBuilder: (c,i) => Card(margin: EdgeInsets.all(8),
+                  child: ListTile(leading: Icon(Icons.science, color: Colors.teal), title: Text(list[i]),
+                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('سيتم اضافة شرح ${list[i]} قريبا')))))) );
             }
           }
           EOF
-      - run: flutter pub get
-      - run: flutter build apk --release
+          cd /tmp/app
+          flutter pub get
+          flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
           name: Science-APK
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: /tmp/app/build/app/outputs/flutter-apk/app-release.apk
