@@ -11,46 +11,26 @@ jobs:
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
-      - name: Build in temp folder
+      - name: Create and Build
         run: |
-          flutter create --project-name science_middle_sudan --org com.sudan.science --platforms android /tmp/app
-          cat > /tmp/app/lib/main.dart << 'EOF'
+          rm -rf /tmp/app
+          flutter create --project-name science --org com.sudan.science --platforms android /tmp/app
+          cat > /tmp/app/lib/main.dart << 'ENDOFFILE'
           import 'package:flutter/material.dart';
-          void main() => runApp(ScienceApp());
-          class ScienceApp extends StatelessWidget {
-            @override
-            Widget build(BuildContext context) {
-              return MaterialApp(debugShowCheckedModeBanner: false, theme: ThemeData(fontFamily: 'Cairo'), home: HomePage());
-            }
-          }
+          void main() => runApp(MaterialApp(debugShowCheckedModeBanner: false, home: HomePage()));
           class HomePage extends StatelessWidget {
-            final grades = [
-              {'name': 'الأول متوسط', 'icon': Icons.biotech, 'color': Colors.teal},
-              {'name': 'الثاني متوسط', 'icon': Icons.favorite, 'color': Colors.orange},
-              {'name': 'الثالث متوسط', 'icon': Icons.rocket_launch, 'color': Colors.indigo},
+            final List<Map<String,dynamic>> grades = [
+              {"name":"الأول متوسط","color": Colors.teal, "icon": Icons.biotech},
+              {"name":"الثاني متوسط","color": Colors.orange, "icon": Icons.favorite},
+              {"name":"الثالث متوسط","color": Colors.indigo, "icon": Icons.rocket},
             ];
             @override
             Widget build(BuildContext context) {
               return Scaffold(
-                appBar: AppBar(title: Text('العلوم - المرحلة المتوسطة'), backgroundColor: Colors.teal, centerTitle: true),
+                appBar: AppBar(title: Text('العلوم - متوسطة السودان'), backgroundColor: Colors.teal, centerTitle: true),
                 body: Column(children: [
-                  Container(width: double.infinity, padding: EdgeInsets.all(16), color: Colors.teal.shade50,
-                    child: Column(children: [
-                      Text('🇸🇩 منهج جمهورية السودان', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      SizedBox(height: 4),
-                      Text('تطبيق مجاني - وقف لله - يعمل بدون انترنت', textAlign: TextAlign.center),
-                    ])),
-                  Expanded(child: ListView.builder(
-                    itemCount: grades.length,
-                    itemBuilder: (c,i) => Card(margin: EdgeInsets.all(12), elevation: 4,
-                      child: ListTile(
-                        leading: CircleAvatar(backgroundColor: grades[i]['color'] as Color, child: Icon(grades[i]['icon'] as IconData, color: Colors.white)),
-                        title: Text(grades[i]['name'] as String, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        subtitle: Text('4 وحدات - شرح كامل + اسئلة'),
-                        trailing: Icon(Icons.arrow_forward_ios),
-                        onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => LessonsPage(grade: grades[i]['name'] as String))),
-                      ))),
-                  ),
+                  Container(width: double.infinity, padding: EdgeInsets.all(14), color: Color(0xFFE0F2F1), child: Text('🇸🇩 منهج السودان - مجاني لوجه الله - بدون نت', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+                  Expanded(child: ListView.builder(itemCount: grades.length, itemBuilder: (c,i) => Card(margin: EdgeInsets.all(12), child: ListTile(leading: CircleAvatar(backgroundColor: grades[i]['color'], child: Icon(grades[i]['icon'], color: Colors.white)), title: Text(grades[i]['name'], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)), subtitle: Text('4 دروس مشروحة كاملة'), trailing: Icon(Icons.arrow_forward_ios), onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => LessonsPage(grade: grades[i]['name']))))))),
                 ]),
               );
             }
@@ -58,18 +38,13 @@ jobs:
           class LessonsPage extends StatelessWidget {
             final String grade;
             LessonsPage({required this.grade});
-            final Map<String, List<Map<String,String>>> data = {
-              'الأول متوسط': [
-                {'title': 'الخلية وحدة الحياة', 'content': 'الخلية هي وحدة بناء الكائن الحي.\n\nأنواع الخلايا:\n1- خلية نباتية: لها جدار خلوي وبلاستيدات خضراء.\n2- خلية حيوانية: ليس لها جدار خلوي.\n\nأجزاء الخلية:\n- النواة: تتحكم في نشاط الخلية\n- السيتوبلازم: مادة هلامية تحدث فيها التفاعلات\n- الغشاء الخلوي: ينظم دخول وخروج المواد\n\nالمجهر: نستخدمه لرؤية الخلايا.'},
-                {'title': 'تصنيف الكائنات الحية', 'content': 'التصنيف: تقسيم الكائنات لمجموعات متشابهة.\n\nالممالك الخمسة:\n1- البدائيات: بكتيريا\n2- الطلائعيات: مثل الأميبا\n3- الفطريات: مثل عيش الغراب\n4- النباتات: تصنع غذائها بالبناء الضوئي\n5- الحيوانات: لا تصنع غذائها\n\nأهمية التصنيف: يسهل دراسة الكائنات.'},
-                {'title': 'المادة وخصائصها', 'content': 'المادة: كل شيء له كتلة وحجم.\n\nحالات المادة:\n1- صلبة: شكل وحجم ثابت (حجر)\n2- سائلة: حجم ثابت وشكل متغير (ماء)\n3- غازية: شكل وحجم متغير (هواء)\n\nالتغيرات:\n- فيزيائي: لا تتكون مادة جديدة (انصهار الثلج)\n- كيميائي: تتكون مادة جديدة (احتراق الخشب)\n\nالكثافة = الكتلة / الحجم'},
-                {'title': 'الطاقة وأنواعها', 'content': 'الطاقة: القدرة على بذل شغل.\n\nأنواع الطاقة:\n1- حركية: طاقة الجسم المتحرك\n2- وضع: طاقة الجسم المرتفع\n3- حرارية: من الحرارة\n4- ضوئية: من الشمس\n5- كهربائية\n\nتحولات الطاقة: الطاقة لا تفنى بل تتحول من شكل لآخر.\nمثال: في المصباح تتحول الكهربائية لضوئية وحرارية.\n\nمصادر الطاقة: متجددة (شمس، رياح) وغير متجددة (نفط، فحم).'},
+            final Map<String, List<Map<String,String>>> all = {
+              "الأول متوسط": [
+                {"t":"1- الخلية وحدة الحياة","c":"الخلية هي وحدة بناء الكائن الحي.\n\n• الخلية النباتية: جدار خلوي + بلاستيدات خضراء\n• الخلية الحيوانية: غشاء فقط\n\nأجزاؤها:\n- النواة: تتحكم في الخلية\n- السيتوبلازم: تحدث فيه التفاعلات\n- الغشاء: ينظم الدخول والخروج\n\nنراها بالمجهر الضوئي."},
+                {"t":"2- تصنيف الكائنات","c":"التصنيف يسهل الدراسة.\n\nالممالك الخمس:\n1- بدائيات (بكتيريا)\n2- طلائعيات (أميبا)\n3- فطريات (عيش غراب)\n4- نباتات (تصنع غذائها)\n5- حيوانات (لا تصنع غذائها)\n\nالفيروسات ليست كائن حي كامل."},
+                {"t":"3- المادة وخصائصها","c":"المادة لها كتلة وحجم.\n\nالحالات:\n• صلب: شكل وحجم ثابت\n• سائل: حجم ثابت\n• غاز: شكل وحجم متغير\n\nالتغير الفيزيائي: لا مادة جديدة (ثلج -> ماء)\nالتغير الكيميائي: مادة جديدة (خشب -> رماد)\n\nالكثافة = الكتلة ÷ الحجم"},
+                {"t":"4- الطاقة","c":"الطاقة قدرة على بذل شغل.\n\nأنواعها: حركية، وضع، حرارية، ضوئية، كهربائية، كيميائية\n\nالقانون: الطاقة لا تفنى بل تتحول.\nمثال: بطارية (كيميائية) -> مصباح (ضوئية + حرارية)\n\nمتجددة: شمس، رياح\nغير متجددة: نفط، فحم"},
               ],
-              'الثاني متوسط': [
-                {'title': 'أجهزة جسم الإنسان', 'content': '1- الجهاز الهضمي: هضم الطعام (فم، مريء، معدة، أمعاء).\n2- الجهاز التنفسي: تبادل الغازات (أنف، قصبة هوائية، رئتين).\n3- الجهاز الدوري: نقل الدم (قلب، دم، أوعية دموية).\n4- الجهاز العصبي: التحكم (مخ، حبل شوكي، أعصاب).\n5- الجهاز الهيكلي: دعم الجسم وحمايته.\n\nالمحافظة على الصحة: غذاء متوازن، رياضة، نوم كاف.'},
-                {'title': 'التكاثر في الكائنات الحية', 'content': 'التكاثر: انتاج افراد جديدة.\n\nأنواعه:\n1- لاجنسي: فرد واحد، لا يحدث تنوع (انقسام، تبرعم).\n2- جنسي: فردين، يحدث تنوع وراثي.\n\nفي النبات: التلقيح ثم الاخصاب ثم تكون البذرة والثمرة.\nفي الانسان: الجهاز التناسلي الذكري والانثوي، الاخصاب داخل الرحم، نمو الجنين 9 أشهر.'},
-                {'title': 'التفاعلات الكيميائية', 'content': 'التفاعل الكيميائي: تكسر روابط وتكوين روابط جديدة.\n\nعلامات التفاعل:\n- تغير لون\n- تصاعد غاز\n- تكون راسب\n- تغير حرارة\n\nأنواع التفاعلات:\n1- اتحاد: A+B -> AB\n2- تحلل: AB -> A+B\n3- احلال\n\nالمعادلة الكيميائية: تمثل التفاعل بالرموز.\nمثال: 2H2 + O2 -> 2H2O\n\nقانون حفظ الكتلة: كتلة المتفاعلات = كتلة النواتج.'},
-                {'title': 'الحركة والقوى', 'content': 'الحركة: تغير موضع الجسم بمرور الزمن.\n\nأنواع الحركة:\n- منتظمة: سرعة ثابتة\n- غير منتظمة: سرعة متغيرة\n\nالقوة: مؤثر يغير حالة الجسم.\n\nقوانين نيوتن:\n1- الاول: الجسم الساكن يبقى ساكن ما لم تؤثر قوة.\n2- الثاني: القوة = الكتلة × التسارع\n3- الثالث: لكل فعل رد فعل مساو له في المقدار ومضاد في الاتجاه.\n\nالاحتكاك: قوة تعاكس الحركة.'},
-              ],
-              'الثالث متوسط': [
-                {'title': 'الوراثة', 'content': 'الوراثة: انتقال الصفات من الآباء للأبناء.\n\nمندل: أبو الوراثة، درس نبات البازلاء.\n\nالمفاهيم:\n- الجين: جزء من DNA يحمل صفة\n- الكروموسوم: يحمل الجينات (46 في الانسان)\n- الصفة السائدة: تظهر دائما\n- الصفة المتنحية: تظهر اذا اجتمعت مع مثلها\n\nمثال: لون العيون، فصيلة
+              "الثاني متوسط": [
+                {"t":"1- أجهزة الجسم","c":"• هضمي: فم، مريء، معدة، أمعاء -> هضم\n• تنفسي: أنف، قصبة، رئتين -> تنفس\n• دوري: قلب، دم، أوعية -> نقل\n• عصبي: مخ، حبل شوكي -> تحكم\n• هيكلي: عظام -> دعم\n\nنحافظ عليها بغذاء صحي ورياضة."},
+                {"t":"2- التكاثر","c":"لاجنسي: فرد واحد، لا تنوع (انقسام، تبرعم)\nجنسي: فردين، تنوع\n\nفي النبات: تلقيح -> إخصاب -> بذرة -> ثمرة\nفي الإنسان: إخصاب داخل الرحم، حمل
