@@ -1,4 +1,4 @@
-    name: Build APK
+name: Build APK
 on:
   push:
     branches: [ main ]
@@ -7,82 +7,50 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
-      - name: Create project files
+      - name: Build
         run: |
-          flutter create --org com.sudan.science --project-name science_middle_sudan --platforms android.
-          rm lib/main.dart
-      - name: Write app code
-        run: |
-          cat > lib/main.dart << 'ENDDART'
+          flutter create --org com.sudan.science --project-name science /tmp/app --platforms android
+          cat > /tmp/app/lib/main.dart << 'DART'
           import 'package:flutter/material.dart';
-          void main() => runApp(MaterialApp(debugShowCheckedModeBanner: false, home: HomePage()));
-          class HomePage extends StatelessWidget {
-            final grades = [
-              {"n":"الأول متوسط","c": Colors.teal, "i": Icons.biotech},
-              {"n":"الثاني متوسط","c": Colors.orange, "i": Icons.favorite},
-              {"n":"الثالث متوسط","c": Colors.indigo, "i": Icons.rocket},
-            ];
-            @override
-            Widget build(BuildContext context) {
-              return Scaffold(
-                appBar: AppBar(title: Text('العلوم - متوسطة السودان'), backgroundColor: Colors.teal, centerTitle: true),
-                body: Column(children: [
-                  Container(width: double.infinity, padding: EdgeInsets.all(12), color: Color(0xFFE0F2F1), child: Text('🇸🇩 منهج السودان - مجاني وقف لله - بدون نت', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
-                  Expanded(child: ListView.builder(itemCount: grades.length, itemBuilder: (c,k) => Card(margin: EdgeInsets.all(12), elevation: 4, child: ListTile(leading: CircleAvatar(backgroundColor: grades[k]['c'] as Color, child: Icon(grades[k]['i'] as IconData, color: Colors.white)), title: Text(grades[k]['n'] as String, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)), subtitle: Text('4 دروس مشروحة كاملة + اسئلة'), trailing: Icon(Icons.arrow_forward_ios), onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => LessonsPage(grade: grades[k]['n'] as String))))))),
-                ]),
-              );
+          void main()=>runApp(MaterialApp(debugShowCheckedModeBanner:false,home:HomePage()));
+          class HomePage extends StatelessWidget{
+            final grades=[{'n':'الأول متوسط','c':Colors.teal,'i':Icons.biotech},{'n':'الثاني متوسط','c':Colors.orange,'i':Icons.favorite},{'n':'الثالث متوسط','c':Colors.indigo,'i':Icons.rocket}];
+            @override Widget build(BuildContext context){
+              return Scaffold(appBar:AppBar(title:Text('العلوم - متوسطة السودان'),backgroundColor:Colors.teal,centerTitle:true),
+                body:Column(children:[
+                  Container(width:double.infinity,padding:EdgeInsets.all(12),color:Color(0xFFE0F2F1),child:Text('🇸🇩 منهج السودان - مجاني وقف لله - بدون نت',textAlign:TextAlign.center,style:TextStyle(fontWeight:FontWeight.bold))),
+                  Expanded(child:ListView.builder(itemCount:grades.length,itemBuilder:(c,k)=>Card(margin:EdgeInsets.all(12),child:ListTile(leading:CircleAvatar(backgroundColor:grades[k]['c'] as Color,child:Icon(grades[k]['i'] as IconData,color:Colors.white)),title:Text(grades[k]['n'] as String,style:TextStyle(fontSize:20,fontWeight:FontWeight.bold)),subtitle:Text('4 دروس مشروحة'),trailing:Icon(Icons.arrow_forward_ios),onTap:()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>LessonsPage(grade:grades[k]['n'] as String))))))),
+                ]));
             }
           }
-          class LessonsPage extends StatelessWidget {
-            final String grade;
-            LessonsPage({required this.grade});
-            final all = {
-              "الأول متوسط": [
-                {"t":"الخلية وحدة الحياة","b":"الخلية وحدة بناء الكائن الحي.\n\n• نباتية: جدار + بلاستيدات\n• حيوانية: غشاء فقط\n\nالأجزاء:\n- نواة: تحكم\n- سيتوبلازم: تفاعلات\n- غشاء: تنظيم\n\nنراها بالمجهر."},
-                {"t":"تصنيف الكائنات","b":"الممالك الخمس:\n1- بدائيات (بكتيريا)\n2- طلائعيات (أميبا)\n3- فطريات\n4- نباتات تصنع غذائها\n5- حيوانات لا تصنع غذائها"},
-                {"t":"المادة وخصائصها","b":"المادة: كتلة وحجم.\n\nصلب: ثابت\nسائل: حجم ثابت\nغاز: متغير\n\nتغير فيزيائي: ثلج->ماء\nكيميائي: خشب->رماد\nالكثافة=كتلة/حجم"},
-                {"t":"الطاقة","b":"أنواع: حركية، وضع، حرارية، ضوئية، كهربائية.\nالطاقة لا تفنى بل تتحول.\nمصباح: كهربائية->ضوئية\nمتجددة: شمس، رياح\nغير متجددة: نفط"},
-              ],
-              "الثاني متوسط": [
-                {"t":"أجهزة الجسم","b":"هضمي: هضم\nتنفسي: تنفس\nدوري: قلب ودم\nعصبي: مخ\nهيكلي: عظام\nنحافظ عليها بغذاء ورياضة"},
-                {"t":"التكاثر","b":"لاجنسي: فرد واحد\nجنسي: فردين وتنوع\nنبات: تلقيح->بذرة\nانسان: حمل 9 أشهر"},
-                {"t":"التفاعلات الكيميائية","b":"علامات: لون، غاز، راسب، حرارة\nأنواع: اتحاد، تحلل، إحلال\nمثال: 2H2+O2->2H2O"},
-                {"t":"الحركة والقوى","b":"نيوتن:\n1- الساكن يبقى ساكن\n2- ق=ك×ت\n3- لكل فعل رد فعل\nالسرعة=مسافة/زمن"},
-              ],
-              "الثالث متوسط": [
-                {"t":"الوراثة","b":"مندل أبو الوراثة\nجين: يحمل صفة\n46 كروموسوم\nسائد يظهر دائما\nمتنحي مع مثله\nمثال فصيلة الدم"},
-                {"t":"الكهرباء","b":"تيار: سريان شحنات\nمغلقة يضيء\nمفتوحة لا يضيء\nأوم: ج=ت×م\nمغناطيس قطبان\nالتيار يولد مغناطيس"},
-                {"t":"البيئة","b":"حية وغير حية\nسلسلة: منتج->مستهلك->محلل\nتوازن بيئي\nتلوث: هواء، ماء، تربة\nالحل: تشجير، تدوير"},
-                {"t":"الفضاء","b":"8 كواكب\nالأرض 365 يوم حول الشمس\n24 ساعة حول نفسها\nقمر يعكس الضوء\nمجرة درب التبانة"},
-              ]
+          class LessonsPage extends StatelessWidget{
+            final String grade; LessonsPage({required this.grade});
+            final Map<String,List<Map<String,String>>> data={
+              'الأول متوسط':[{'t':'الخلية وحدة الحياة','b':'الخلية وحدة بناء الكائن الحي.\n\n• نباتية: جدار + بلاستيدات\n• حيوانية: غشاء فقط\n\nالنواة: تحكم\nالسيتوبلازم: تفاعلات\nالغشاء: تنظيم\n\nنراها بالمجهر.'},{'t':'تصنيف الكائنات','b':'الممالك الخمس:\n1- بدائيات (بكتيريا)\n2- طلائعيات (أميبا)\n3- فطريات\n4- نباتات\n5- حيوانات'},{'t':'المادة','b':'لها كتلة وحجم.\nصلب ثابت\nسائل حجم ثابت\nغاز متغير\n\nفيزيائي: ثلج->ماء\nكيميائي: خشب->رماد'},{'t':'الطاقة','b':'حركية، وضع، حرارية، ضوئية، كهربائية.\nلا تفنى بل تتحول.\nمتجددة: شمس\nغير متجددة: نفط'}],
+              'الثاني متوسط':[{'t':'أجهزة الجسم','b':'هضمي، تنفسي، دوري، عصبي، هيكلي.\nنحافظ عليها بغذاء ورياضة'},{'t':'التكاثر','b':'لاجنسي: فرد واحد\nجنسي: فردين\nنبات: تلقيح->بذرة\nانسان: حمل 9 أشهر'},{'t':'التفاعلات','b':'علامات: لون، غاز، راسب\nأنواع: اتحاد، تحلل\nH2+O2->H2O'},{'t':'الحركة','b':'نيوتن:\n1- ساكن يبقى ساكن\n2- ق=ك×ت\n3- فعل=رد فعل'}],
+              'الثالث متوسط':[{'t':'الوراثة','b':'مندل أبو الوراثة\nجين يحمل صفة\n46 كروموسوم\nسائد ومتنحي'},{'t':'الكهرباء','b':'تيار سريان شحنات\nمغلقة يضيء\nأوم: ج=ت×م\nمغناطيس قطبان'},{'t':'البيئة','b':'حية وغير حية\nسلسلة غذائية\nتوازن بيئي\nتلوث: هواء، ماء\nالحل: تشجير'},{'t':'الفضاء','b':'8 كواكب\nالأرض 365 يوم حول الشمس\nقمر يعكس الضوء\nمجرة درب التبانة'}],
             };
-            @override
-            Widget build(BuildContext c) {
-              var list = all[grade] as List<Map<String,String>>;
-              return Scaffold(appBar: AppBar(title: Text(grade), backgroundColor: Colors.teal), body: ListView.builder(itemCount: list.length, itemBuilder: (cx,i) => Card(margin: EdgeInsets.all(8), child: ListTile(leading: CircleAvatar(child: Text('${i+1}')), title: Text(list[i]['t']!), trailing: Icon(Icons.menu_book), onTap: () => Navigator.push(cx, MaterialPageRoute(builder: (_) => DetailPage(t: list[i]['t']!, b: list[i]['b']!))))));
+            @override Widget build(BuildContext c){
+              var list=data[grade]!;
+              return Scaffold(appBar:AppBar(title:Text(grade),backgroundColor:Colors.teal),body:ListView.builder(itemCount:list.length,itemBuilder:(cx,i)=>Card(margin:EdgeInsets.all(8),child:ListTile(leading:CircleAvatar(child:Text('${i+1}')),title:Text(list[i]['t']!),trailing:Icon(Icons.book),onTap:()=>Navigator.push(cx,MaterialPageRoute(builder:(_)=>DetailPage(t:list[i]['t']!,b:list[i]['b']!)))))));
             }
           }
-          class DetailPage extends StatelessWidget {
-            final String t,b;
-            DetailPage({required this.t, required this.b});
-            @override
-            Widget build(BuildContext c) {
-              return Scaffold(appBar: AppBar(title: Text(t), backgroundColor: Colors.teal), body: SingleChildScrollView(padding: EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(t, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal)), Divider(), SizedBox(height: 10), Text(b, style: TextStyle(fontSize: 18, height: 1.8)), SizedBox(height: 20), Container(width: double.infinity, padding: EdgeInsets.all(12), color: Colors.orange.shade50, child: Text('💡 راجع الدرس واكتب ملخص في دفترك', style: TextStyle(fontWeight: FontWeight.bold)))])));
+          class DetailPage extends StatelessWidget{
+            final String t,b; DetailPage({required this.t,required this.b});
+            @override Widget build(BuildContext c){
+              return Scaffold(appBar:AppBar(title:Text(t),backgroundColor:Colors.teal),body:SingleChildScrollView(padding:EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(t,style:TextStyle(fontSize:22,fontWeight:FontWeight.bold,color:Colors.teal)),Divider(),SizedBox(height:10),Text(b,style:TextStyle(fontSize:18,height:1.8)),SizedBox(height:20),Container(padding:EdgeInsets.all(12),color:Colors.orange.shade50,child:Text('💡 اكتب ملخص في دفترك',style:TextStyle(fontWeight:FontWeight.bold)))])));
             }
           }
-          ENDDART
-      - name: Build APK
-        run: |
+          DART
+          cd /tmp/app
           flutter pub get
           flutter build apk --release
           ls -lh build/app/outputs/flutter-apk/
-      - name: Upload
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: Science-APK-Full-Materials
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: /tmp/app/build/app/outputs/flutter-apk/app-release.apk
